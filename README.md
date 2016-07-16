@@ -1,5 +1,5 @@
-# EAST
-_East (pf) - Easy REST Python Framework_
+# EAST (pf)
+_Easy REST Python Framework_
 
 A short description, should be catchy
 
