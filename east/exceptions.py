@@ -14,13 +14,15 @@ class HTTPBaseException(Exception):
     status_code = 500
     name = 'HTTP Base Exception'
 
-    def __init__(self, description='', name=None):
+    def __init__(self, description='', name=None, data={}):
         self.description = description
+        self.data = data
+
         if name is not None:
             self.name = name
 
     def __str__(self):
-        return '<%s>: %s' % (self.name, self.description)
+        return '%s' % self.description
 
     def as_response(self):
         from east.http import Response

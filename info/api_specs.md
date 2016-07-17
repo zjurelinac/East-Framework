@@ -33,9 +33,9 @@ Workflow:
     + _Create utility classes - variants of dict_
     + _Implement request parsing (basics)_
     + _Implement response generation_
-    - Implement exception handling
+    + _Implement exception handling_
     - Implement logging
-    - Think through preprocessing & postprocessing, security
+    + _Think through preprocessing & postprocessing, security_
     - Enable testing
     - Implement further request parsing functionalities
     - Create an example project - simplest of blogs - Topic, Post, Comment

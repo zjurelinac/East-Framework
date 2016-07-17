@@ -1,3 +1,9 @@
+"""
+    east.app
+    ========
+
+"""
+
 import sys
 import traceback
 
@@ -12,10 +18,12 @@ from east.exceptions import *
 class East:
     """Application object
 
-    Provides WSGI interface, routing, event management and error handling.
+    Provides WSGI interface, routing, configurations, event management and
+    error handling.
     """
 
-    def __init__(self):
+    def __init__(self, name):
+        self.name = name
         self.router = Router()
         self.config = {}
 
@@ -57,7 +65,7 @@ class East:
     def resource(self, url_rule):
         """Decorator for registering resources for an URL"""
         def decorator(cls):
-            self.register_route(cls(), url_rule, None)
+            self.register_route(cls, url_rule, None)
             return cls
         return decorator
 
@@ -158,7 +166,7 @@ class Context:
 
     def dispatch_request(self):
         """Dispatch request to the endpoint resource and obtain the response"""
-        self.response = (self.endpoint(self) if isinstance(self.endpoint, Resource)
+        self.response = (self.endpoint()(self) if isinstance(self.endpoint, Resource)
                          else dispatch_to_endpoint(self.endpoint, self))
 
     def retrieve_param(self, param_name):
@@ -176,7 +184,7 @@ class Context:
 class Extension:
     """Abstract base class for all East extension modules
 
-    Each extension must support install method which is called upon extension
+    Each extension must support the `install` method which is called upon extension
     registration with the application object
     """
     __metaclass__ = ABCMeta

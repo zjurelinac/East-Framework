@@ -19,7 +19,7 @@ def identity(x):
 # Data conversion
 
 def make_json(obj):
-    return json.dumps(obj, indent=4, separators=(',', ':')).encode('utf8')
+    return json.dumps(obj, indent=4, separators=(', ', ': ')).encode('utf8')
 
 
 def make_list(obj):

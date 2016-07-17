@@ -2,12 +2,9 @@ from east import East, JSON, Nothing, Resource, Response
 from east.ext.jwt import *
 
 
-def auth(context):
-    return True
+app = East(__name__)
 
-app = East()
-
-jwt = EastJWT(auth)
+jwt = EastJWT(lambda x: True)
 app.register_extension(jwt)
 
 todos = {}
@@ -17,12 +14,10 @@ class MyException(Exception):
     pass
 
 
-@app.resource('/misc')
+@app.route('/misc', methods=['GET'])
 @jwt.required
-class Misc(Resource):
-
-    def get(self, id: int = 7) -> JSON:
-        return {'message': {'text': 'hello', 'id': id}}
+def get_misc(id: int = 7) -> JSON:
+    return {'message': {'text': 'hello', 'id': id}}
 
 
 @app.resource('/todos')

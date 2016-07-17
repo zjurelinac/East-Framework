@@ -79,6 +79,11 @@ class Route:
                 in self.compiled_regex.match(url).groupdict().items()}
 
 
+class Region:
+    """API route/resource group, with a common URL prefix"""
+    pass
+
+
 class Router:
     """Routing provider"""
 
