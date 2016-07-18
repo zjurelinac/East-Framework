@@ -8,7 +8,7 @@ from east.app import Extension
 from east.exceptions import HTTPUnauthorized
 
 
-class EastJWT(Extension):
+class JWT(Extension):
 
     def __init__(self, identity_verificator):
         self.identity_verificator = identity_verificator
