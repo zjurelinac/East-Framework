@@ -52,7 +52,7 @@ class TodoResource(Resource):
 
 ## TODO / Status
 - [x] Implement logging
-- [ ] Implement app.run()
+- [x] Implement app.run()
 - [ ] JWT & basic auth extensions
 - [ ] Database extensions
 - [ ] Support setting response header inside view
