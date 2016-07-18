@@ -31,6 +31,7 @@ class Todos(Resource):
 class Todo(Resource):
 
     def get(self, todo_id: int) -> JSON:
+        raise MyException('hello world')
         return todos[todo_id]
 
     def put(self, todo_id: int, task: str) -> JSON(full=True):
@@ -46,3 +47,7 @@ class Todo(Resource):
 def handle_my_exception(exc):
     print(exc)
     return Response('Error happened', 404)
+
+
+if __name__ == '__main__':
+    app.run('localhost')

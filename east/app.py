@@ -4,8 +4,9 @@
 
 """
 
+import logging
 import sys
-import traceback
+# import traceback
 
 from abc import ABCMeta, abstractmethod
 from collections import defaultdict
@@ -24,18 +25,22 @@ class East:
 
     def __init__(self, name):
         self.name = name
-        self.router = Router()
-        self.config = {}
 
+        self._router = Router()
+        self._config = self.make_config()
+        self._logger = self.make_logger()
         self._ext = {}
         self._hooks = defaultdict(list)
         self._exception_handlers = {}
+
+        self.logger.info('App `%s` initialized' % self.name)
+        self.logger.warning('Config not properly implemented yet!')
 
     # Routing, customization and extension points
 
     def register_route(self, f, url_rule, methods):
         """Register a view function/method for a given URL rule"""
-        self.router.add_route(f, url_rule, methods)
+        self._router.add_route(f, url_rule, methods)
 
     def register_hook(self, event, f):
         """Register a function which will be executed upon firing of the event"""
@@ -83,6 +88,51 @@ class East:
             return f
         return decorator
 
+    # Configuring, testing, debugging and logging
+
+    def make_config(self):
+        config = {'DEBUG': True}
+        return config
+
+    def make_logger(self):
+        level = logging.DEBUG if self.config.get('DEBUG') else logging.ERROR
+
+        logger = logging.getLogger(self.name)
+        logger.setLevel(level)
+
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setLevel(level)
+
+        formatter = logging.Formatter('%(asctime)s | %(levelname)-9s| %(name)-20s :: %(message)s', '%d/%m/%Y %H:%M:%S')
+
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+
+        return logger
+
+    @property
+    def config(self):
+        return self._config
+
+    @property
+    def logger(self):
+        return self._logger
+
+    def run(self, host, port=8000):
+        try:
+            from gevent.pywsgi import WSGIServer
+        except ImportError:
+            self.logger.log('Could not find gevent package, aborting')
+            sys.exit(1)
+
+        server = WSGIServer((host, port), self, log=self.logger)
+
+        try:
+            server.serve_forever()
+        except KeyboardInterrupt:
+            self.logger.info('Shutting down... Bye bye!')
+            server.stop()
+
     # Execution methods
 
     def dispatch_to_handler(self, exception):
@@ -105,11 +155,10 @@ class East:
             if status == Context.ERROR:
                 response = self.dispatch_to_handler(exception) or exception.as_response()
         except Exception as e:
-            traceback.print_exc()
+            self.logger.exception('Caught exception during request serving (with traceback):')
             response = HTTPBaseException(str(e), name=e.__class__.__name__).as_response()
         finally:
-            print('>> `%s` :: %s (%d)' % (context.request.url, response.status_message, response.content_length))
-            print(response.headers.as_list())
+            self.logger.info('%s %s :: %s' % (context.request.method, context.request.url, response.status_message))
             start_response(response.status_message, response.headers.as_list())
             return [response.body]
 
@@ -136,8 +185,10 @@ class Context:
 
         self.config = app.config
         self.data = DataStorage()
+        self.logger = app.logger
+
         self.trigger_event = app.trigger_event
-        self.match_route = app.router.match
+        self.match_route = app._router.match
 
         self.status = Context.CREATED
 
@@ -146,15 +197,20 @@ class Context:
         the current context"""
         try:
             self.trigger_event('context_created', self)
+
             self.request = Request.parse_request(self.environ)
             self.trigger_event('request_received', self)
+
             self.determine_endpoint()
             self.trigger_event('endpoint_determined', self)
+
             self.dispatch_request()
             self.trigger_event('response_created', self)
+
             self.status = Context.FINISHED
         except Exception as e:
-            traceback.print_exc()
+            if self.config.get('DEBUG'):
+                self.logger.exception('Request processing ended with exception:')
             self.status = Context.ERROR
             self.exception = HTTPBaseException(str(e), name=e.__class__.__name__).with_traceback(sys.exc_info()[2])
         finally:
@@ -166,7 +222,7 @@ class Context:
 
     def dispatch_request(self):
         """Dispatch request to the endpoint resource and obtain the response"""
-        self.response = (self.endpoint()(self) if isinstance(self.endpoint, Resource)
+        self.response = (self.endpoint()(self) if issubclass(self.endpoint, Resource)
                          else dispatch_to_endpoint(self.endpoint, self))
 
     def retrieve_param(self, param_name):

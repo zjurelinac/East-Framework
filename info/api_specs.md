@@ -34,22 +34,10 @@ Workflow:
     + _Implement request parsing (basics)_
     + _Implement response generation_
     + _Implement exception handling_
-    - Implement logging
+    + _Implement logging_
     + _Think through preprocessing & postprocessing, security_
     - Enable testing
     - Implement further request parsing functionalities
     - Create an example project - simplest of blogs - Topic, Post, Comment
 
-Usage example:
-
-    @app.route('/')
-    class UserResource(Resource):
-        
-        def get(self, id: int) -> JSON:
-            return User.get(User.id == id)
-
-        def put(self, id: int, username: str, password: str, email:str) -> JSON:
-            user = User.get(User.id)
-            user.update(username = username, password = password, email = email).save()
-            return user
 

@@ -25,6 +25,9 @@ flexibility of Python and a few ideas of functional programming.
 ## A few examples
 
 ```python
+# The simplest of examples: the proverbial TODO app
+
+app = East(__name__)
 todos = {}
 
 @app.resource('/api/todos/<int:id>')
@@ -43,6 +46,21 @@ class TodoResource(Resource):
 ```
 
 ## Future ideas
+- HTML templating via output type (extension)
+- Input stream wrapping, if neccessary - YES, will use for testing
+- Allow app functional testing - use mock WSGI server (create WSGI envirnoment, return response to the tester)
 
 ## TODO / Status
+- [x] Implement logging
+- [ ] Implement app.run()
+- [ ] JWT & basic auth extensions
+- [ ] Database extensions
+- [ ] Support setting response header inside view
+- [ ] Add cookie support - setting and getting
+- [ ] Introduce 405 MethodNotAllowed errors
+- [ ] Support OPTIONS HTTP request
+- [ ] Allow multipart/formdata request body
+- [ ] Allow file upload via arbitrary request body content-type
+- [ ] Add API Regions
+- [ ] AUTOMATIC DOCS GENERATION
 
